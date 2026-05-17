@@ -68,7 +68,7 @@ export const AppSidebar = () => {
                 height={30}
                 alt="Brand logo"
               />
-              <span className="font-semibbold text-sm">Nodebase</span>
+              <span className="font-semibbold text-sm">Kyro</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
