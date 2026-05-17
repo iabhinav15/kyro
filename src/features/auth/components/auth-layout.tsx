@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -11,7 +10,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
           className="flex items-center gap-2 self-center font-medium"
         >
           <Image src="/logos/logo.svg" width={30} height={30} alt="Logo" />
-          Nodebase
+          Kyro
         </Link>
         {children}
       </div>
