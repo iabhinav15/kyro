@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -20,12 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-import Image from "next/image";
+import { GoogleAuthButton } from "./google-auth-button";
+import { OAuthErrorToast } from "./oauth-error-toast";
 
 const registerSchema = z
   .object({
@@ -40,7 +40,15 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const RegisterForm = () => {
+type RegisterFormProps = {
+  oauthError?: string | null;
+  oauthErrorDescription?: string | null;
+};
+
+const RegisterForm = ({
+  oauthError,
+  oauthErrorDescription,
+}: RegisterFormProps) => {
   const router = useRouter();
 
   const form = useForm<RegisterFormValues>({
@@ -62,6 +70,7 @@ const RegisterForm = () => {
       },
       {
         onSuccess: () => {
+          toast.success("Account created. Welcome to Kyro!");
           router.push("/");
         },
         onError: (ctx) => {
@@ -75,6 +84,10 @@ const RegisterForm = () => {
 
   return (
     <div className="w-full flex flex-col gap-6">
+      <OAuthErrorToast
+        error={oauthError}
+        errorDescription={oauthErrorDescription}
+      />
       <Card>
         <CardHeader className="text-center">
           <CardTitle>Get Started</CardTitle>
@@ -85,20 +98,10 @@ const RegisterForm = () => {
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="grid gap-6">
                 <div className="flex flex-col gap-4">
-                  <Button
-                    variant={"outline"}
-                    className="w-full"
-                    type="button"
+                  <GoogleAuthButton
                     disabled={isPending}
-                  >
-                    <Image
-                      src={"/logos/google.svg"}
-                      width={20}
-                      height={20}
-                      alt="Google logo"
-                    />
-                    Continue with Google
-                  </Button>
+                    errorCallbackURL="/signup"
+                  />
                 </div>
                 <div className="grid gap-6">
                   <FormField

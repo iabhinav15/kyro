@@ -1,8 +1,7 @@
+import { checkout, polar, portal } from "@polar-sh/better-auth";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./db";
-
-import { polar, checkout, portal } from "@polar-sh/better-auth";
 import { polarClient } from "./polar";
 
 export const auth = betterAuth({
@@ -12,6 +11,18 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    },
+  },
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+    },
   },
   plugins: [
     polar({

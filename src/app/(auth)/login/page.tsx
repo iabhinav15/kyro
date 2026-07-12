@@ -1,9 +1,23 @@
 import LoginForm from "@/features/auth/components/login-form";
 import { requireUnAuth } from "@/lib/auth-utils";
 
-const Page = async () => {
+type Props = {
+  searchParams: Promise<{
+    error?: string;
+    error_description?: string;
+  }>;
+};
+
+const Page = async ({ searchParams }: Props) => {
   await requireUnAuth();
-  return <LoginForm />;
+  const params = await searchParams;
+
+  return (
+    <LoginForm
+      oauthError={params.error}
+      oauthErrorDescription={params.error_description}
+    />
+  );
 };
 
 export default Page;
