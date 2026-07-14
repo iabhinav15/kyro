@@ -329,7 +329,7 @@ export const EntityItem = ({
                 >
                   <DropdownMenuItem
                     onClick={handleRemove}
-                    className="bg-background cursor-pointer"
+                    className="bg-muted rounded-md cursor-pointer"
                   >
                     <TrashIcon className="size-4" />
                     Delete
