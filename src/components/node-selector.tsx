@@ -1,7 +1,13 @@
 "use client";
 
-import { NodeType } from "@/generated/prisma";
+import { createId } from "@paralleldrive/cuid2";
+import { useReactFlow } from "@xyflow/react";
 import { GlobeIcon, MousePointerIcon } from "lucide-react";
+import Image from "next/image";
+import { useCallback } from "react";
+import { toast } from "sonner";
+import { NodeType } from "@/generated/prisma";
+import { Separator } from "./ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -10,11 +16,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Separator } from "./ui/separator";
-import { useReactFlow } from "@xyflow/react";
-import { useCallback } from "react";
-import { toast } from "sonner";
-import { createId } from "@paralleldrive/cuid2";
 
 export type NodeTypeOption = {
   type: NodeType;
@@ -27,7 +28,7 @@ export type NodeTypeOption = {
     | string;
 };
 
-const triggerNodes: NodeTypeOption[] = [
+export const triggerNodes: NodeTypeOption[] = [
   {
     type: NodeType.MANUAL_TRIGGER,
     label: "Manual Trigger",
@@ -48,7 +49,7 @@ const triggerNodes: NodeTypeOption[] = [
   },
 ];
 
-const executionNodes: NodeTypeOption[] = [
+export const executionNodes: NodeTypeOption[] = [
   {
     type: NodeType.HTTP_REQUEST,
     label: "HTTP Request",
@@ -75,25 +76,35 @@ const executionNodes: NodeTypeOption[] = [
   },
 ];
 
-interface NodeSelectorProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  children: React.ReactNode;
-}
+// export const nodeTypeOptions = [...triggerNodes, ...executionNodes];
 
-export const NodeSelector = ({
-  open,
-  onOpenChange,
-  children,
-}: NodeSelectorProps) => {
+export const NodeTypeOptionIcon = ({ node }: { node: NodeTypeOption }) => {
+  const Icon = node.icon;
+
+  if (typeof Icon === "string") {
+    return (
+      <Image
+        src={Icon}
+        alt={node.label}
+        width={20}
+        height={20}
+        className="size-5 object-contain rounded-sm"
+      />
+    );
+  }
+
+  return <Icon className="size-5" />;
+};
+
+export const useNodeSelect = (onSelect?: () => void) => {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
 
-  const handleNodeSelect = useCallback(
+  return useCallback(
     (selection: NodeTypeOption) => {
       if (selection.type === NodeType.MANUAL_TRIGGER) {
         const nodes = getNodes();
         const hasManualTriggerNode = nodes.some(
-          (node) => node.data?.type === NodeType.MANUAL_TRIGGER,
+          (node) => node.type === NodeType.MANUAL_TRIGGER,
         );
 
         if (hasManualTriggerNode) {
@@ -105,7 +116,7 @@ export const NodeSelector = ({
       }
 
       setNodes((nodes) => {
-        const hasInitialTirggerNode = nodes.some(
+        const hasInitialTriggerNode = nodes.some(
           (node) => node.type === NodeType.INITIAL,
         );
         const centerX = window.innerWidth / 2;
@@ -122,19 +133,32 @@ export const NodeSelector = ({
           position: flowPosition,
           data: {},
         };
-        console.log('newNode', newNode)
 
-        if (hasInitialTirggerNode) {
+        if (hasInitialTriggerNode) {
           return [newNode];
         }
 
         return [...nodes, newNode];
       });
 
-      onOpenChange(false);
+      onSelect?.();
     },
-    [setNodes, getNodes, screenToFlowPosition, onOpenChange],
+    [setNodes, getNodes, screenToFlowPosition, onSelect],
   );
+};
+
+interface NodeSelectorProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+}
+
+export const NodeSelector = ({
+  open,
+  onOpenChange,
+  children,
+}: NodeSelectorProps) => {
+  const handleNodeSelect = useNodeSelect(() => onOpenChange(false));
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -148,23 +172,15 @@ export const NodeSelector = ({
         </SheetHeader>
         <div className="">
           {triggerNodes.map((node) => {
-            const Icon = node.icon;
             return (
-              <div
+              <button
                 key={node.type}
+                type="button"
                 className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border-l-2 border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(node)}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
-                  {typeof Icon === "string" ? (
-                    <img
-                      src={Icon}
-                      alt={node.label}
-                      className="size-5 object-contain rounded-sm"
-                    />
-                  ) : (
-                    <Icon className="size-5" />
-                  )}
+                  <NodeTypeOptionIcon node={node} />
                   <div className="flex flex-col items-start text-left">
                     <span className="font-medium text-sm">{node.label}</span>
                     <span className="text-xs text-muted-foreground">
@@ -172,30 +188,22 @@ export const NodeSelector = ({
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
         <Separator />
         <div className="">
           {executionNodes.map((node) => {
-            const Icon = node.icon;
             return (
-              <div
+              <button
                 key={node.type}
+                type="button"
                 className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border-l-2 border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(node)}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
-                  {typeof Icon === "string" ? (
-                    <img
-                      src={Icon}
-                      alt={node.label}
-                      className="size-5 object-contain rounded-sm"
-                    />
-                  ) : (
-                    <Icon className="size-5" />
-                  )}
+                  <NodeTypeOptionIcon node={node} />
                   <div className="flex flex-col items-start text-left">
                     <span className="font-medium text-sm">{node.label}</span>
                     <span className="text-xs text-muted-foreground">
@@ -203,7 +211,7 @@ export const NodeSelector = ({
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
