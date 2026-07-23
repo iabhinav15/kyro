@@ -15,13 +15,12 @@ import {
   Panel,
   ReactFlow,
 } from "@xyflow/react";
-import { useSetAtom } from "jotai";
 import { useCallback, useMemo, useState } from "react";
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import { nodeComponents } from "@/config/node-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
 import { NodeType } from "@/generated/prisma";
-import { editorAtom } from "../store/atom";
+import { useEditorStore } from "../store/store";
 import { AddNodeButton } from "./add-node-button";
 import { ExecuteWorkflowButton } from "./execute-workflow-button";
 import { NodeQuickAddList } from "./node-quick-add-list";
@@ -37,7 +36,7 @@ export const EditorError = () => {
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
 
-  const setEditor = useSetAtom(editorAtom);
+  const setEditor = useEditorStore((state) => state.setEditor);
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);

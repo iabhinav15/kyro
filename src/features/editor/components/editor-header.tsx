@@ -1,5 +1,8 @@
 "use client";
 
+import { SaveIcon } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,14 +18,10 @@ import {
   useUpdateWorkflow,
   useUpdateWorkflowName,
 } from "@/features/workflows/hooks/use-workflows";
-import { useAtomValue } from "jotai";
-import { SaveIcon } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { editorAtom } from "../store/atom";
+import { useEditorStore } from "../store/store";
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
-  const editor = useAtomValue(editorAtom);
+  const editor = useEditorStore((state) => state.editor);
   const saveWorkflow = useUpdateWorkflow();
 
   const handleSave = () => {
